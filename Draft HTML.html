@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sản phẩm với bảng điều khiển lọc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+            width: 80%;
+            margin: 20px auto;
+        }
+        .filter-panel {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .product-list {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .product-group {
+            margin-bottom: 40px;
+        }
+        .product-group h2 {
+            color: #33c1ff;
+            margin-bottom: 10px;
+        }
+        .product-group img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .product-description {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 20px;
+        }
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .product-table th, .product-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .product-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="filter-panel">
+            <h2>Bộ lọc</h2>
+            <p>Loại sản phẩm</p>
+            <select>
+                <option value="all">Tất cả</option>
+                <option value="group1">Nhóm sản phẩm 1</option>
+                <option value="group2">Nhóm sản phẩm 2</option>
+                <option value="group3">Nhóm sản phẩm 3</option>
+            </select>
+            <!-- Thêm các bộ lọc khác ở đây -->
+        </div>
+        <div class="product-list" id="product-container">
+            <!-- Nhóm sản phẩm sẽ được tạo động ở đây -->
+        </div>
+    </div>
+
+    <script>
+        // Mảng dữ liệu nhóm sản phẩm
+        const productGroups = [
+            { id: 1, title: "Nhóm sản phẩm 1", description: "Mô tả ngắn về nhóm sản phẩm 1.", image: "group1.jpg" },
+            { id: 2, title: "Nhóm sản phẩm 2", description: "Mô tả ngắn về nhóm sản phẩm 2.", image: "group2.jpg" },
+            { id: 3, title: "Nhóm sản phẩm 3", description: "Mô tả ngắn về nhóm sản phẩm 3.", image: "group3.jpg" }
+        ];
+
+        // Mảng dữ liệu sản phẩm
+        const products = [
+            { id: 1, title: "Sản phẩm 1", unit: "Hộp", price: "500,000 VND", groupId: 1 },
+            { id: 2, title: "Sản phẩm 2", unit: "Chai", price: "700,000 VND", groupId: 1 },
+            { id: 3, title: "Sản phẩm 3", unit: "Gói", price: "300,000 VND", groupId: 1 },
+            { id: 4, title: "Sản phẩm 4", unit: "Thùng", price: "1,200,000 VND", groupId: 1 },
+            { id: 5, title: "Sản phẩm 5", unit: "Hộp", price: "600,000 VND", groupId: 2 },
+            { id: 6, title: "Sản phẩm 6", unit: "Chai", price: "800,000 VND", groupId: 2 },
+            { id: 7, title: "Sản phẩm 7", unit: "Gói", price: "400,000 VND", groupId: 2 },
+            { id: 8, title: "Sản phẩm 8", unit: "Thùng", price: "1,300,000 VND", groupId: 2 },
+            { id: 9, title: "Sản phẩm 9", unit: "Hộp", price: "500,000 VND", groupId: 3 },
+            { id: 10, title: "Sản phẩm 10", unit: "Chai", price: "900,000 VND", groupId: 3 },
+            { id: 11, title: "Sản phẩm 11", unit: "Gói", price: "1,000,000 VND", groupId: 3 },
+            { id: 12, title: "Sản phẩm 12", unit: "Thùng", price: "700,000 VND", groupId: 3 }
+        ];
+
+        // Hàm để tạo các nhóm sản phẩm
+        function createProductGroups(productGroups, products) {
+            const productContainer = document.getElementById('product-container');
+
+            productGroups.forEach(group => {
+                const productGroup = document.createElement('div');
+                productGroup.className = 'product-group';
+                productGroup.innerHTML = `
+                    <h2>${group.title}</h2>
+                    <img src="${group.image}" alt="${group.title}">
+                    <p class="product-description">${group.description}</p>
+                `;
+                
+                const productTable = document.createElement('table');
+                productTable.className = 'product-table';
+                productTable.innerHTML = `
+                    <tr>
+                        <th>Tên sản phẩm</th>
+                        <th>Đơn vị</th>
+                        <th>Giá</th>
+                    </tr>
+                `;
+                
+                const groupProducts = products.filter(product => product.groupId === group.id);
+                groupProducts.forEach(product => {
+                    const productRow = document.createElement('tr');
+                    productRow.innerHTML = `
+                        <td>${product.title}</td>
+                        <td>${product.unit}</td>
+                        <td>${product.price}</td>
+                    `;
+                    productTable.appendChild(productRow);
+                });
+                
+                productGroup.appendChild(productTable);
+                productContainer.appendChild(productGroup);
+            });
+        }
+
+        // Tải các nhóm sản phẩm khi trang được tải
+        window.onload = function() {
+            createProductGroups(productGroups, products);
+        };
+    </script>
+</body>
+</html>
