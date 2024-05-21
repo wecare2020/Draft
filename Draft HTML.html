@@ -1,153 +1,353 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách sản phẩm với bảng điều khiển lọc</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 3fr;
-            gap: 20px;
-            width: 80%;
-            margin: 20px auto;
-        }
-        .filter-panel {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .product-list {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .product-group {
-            margin-bottom: 40px;
-        }
-        .product-group h2 {
-            color: #33c1ff;
-            margin-bottom: 10px;
-        }
-        .product-group img {
-            width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .product-description {
-            font-size: 14px;
-            color: #777;
-            margin-bottom: 20px;
-        }
-        .product-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .product-table th, .product-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .product-table th {
-            background-color: #f2f2f2;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background-color: #3899B4;
+      color: #fff;
+      padding: 10px;
+      text-align: left;
+      display: flex;
+      /* Thêm dòng này để logo và tiêu đề sẽ nằm cạnh nhau */
+      align-items: center;
+      /* Canh chỉnh logo và tiêu đề theo chiều dọc */
+    }
+
+    header #logo {
+      margin-right: 10px;
+      /* Cách logo ra một khoản nhỏ */
+    }
+
+    footer {
+      background-color: #3899B4;
+      color: #fff;
+      padding: 10px;
+      text-align: left;
+      margin-top: auto;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+    }
+
+    .sidebar {
+      width: 200px;
+      padding: 10px;
+      background-color: #f2f2f2;
+      overflow-y: auto;
+      max-height: calc(100vh - 164px);
+    }
+
+    .nhomsp {
+      padding: 10px;
+      background-color: #f2f2f2;
+    }
+
+    .content {
+      flex-grow: 1;
+      padding: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+
+    }
+
+    th,
+    td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: middle;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      padding: 8px;
+      background-color: #fff;
+      margin-bottom: 5px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+    }
+
+    li:hover {
+      background-color: #ddd;
+      cursor: pointer;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .pagination button {
+        margin: 0 10px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    #pageNumber {
+        margin: 0 10px;
+    }   
+  </style>
 </head>
-<body>
-    <div class="container">
-        <div class="filter-panel">
-            <h2>Bộ lọc</h2>
-            <p>Loại sản phẩm</p>
-            <select>
-                <option value="all">Tất cả</option>
-                <option value="group1">Nhóm sản phẩm 1</option>
-                <option value="group2">Nhóm sản phẩm 2</option>
-                <option value="group3">Nhóm sản phẩm 3</option>
-            </select>
-            <!-- Thêm các bộ lọc khác ở đây -->
-        </div>
-        <div class="product-list" id="product-container">
-            <!-- Nhóm sản phẩm sẽ được tạo động ở đây -->
-        </div>
+
+<body onload="getData()">
+  <header>
+    <div id="logo">
+      <a><img width="95" height="84"
+          src="https://wecare-ii.crm5.dynamics.com/%7b638512693250000198%7d/webresources/new_logo"
+          class="header_logo header-logo" alt="Siêu thị công nghiệp Wecare">
+      </a>
     </div>
+    <h1 style="margin-top: 0; margin-bottom: 0;">Đồng hành cùng sản xuất</h1>
+  </header>
+  <div class="container">
+    <div class="nhomsp">
+      <h2>Nhóm Sản Phẩm</h2>
+      <input type="text" id="searchInput" placeholder="Tìm kiếm nhóm sản phẩm..." onkeyup="searchGroups()">
+      <div class="sidebar">
+        <ul id="groupList">
+          <li>
+            <input type="checkbox" value="All" onclick="selectAll(this)">
+            <label>All</label>
+          </li>
+          <div id="filter_nhsp"></div>
 
-    <script>
-        // Mảng dữ liệu nhóm sản phẩm
-        const productGroups = [
-            { id: 1, title: "Nhóm sản phẩm 1", description: "Mô tả ngắn về nhóm sản phẩm 1.", image: "group1.jpg" },
-            { id: 2, title: "Nhóm sản phẩm 2", description: "Mô tả ngắn về nhóm sản phẩm 2.", image: "group2.jpg" },
-            { id: 3, title: "Nhóm sản phẩm 3", description: "Mô tả ngắn về nhóm sản phẩm 3.", image: "group3.jpg" }
-        ];
+        </ul>
+      </div>
+    </div>
+    <div class="content">
+      <h2>Báo giá </h2>
+      <table id="productTable">
+        <thead>
+          <tr>
+            <th>Nhóm đối tượng</th>
+            <th>Sản phẩm</th>
+            <th>Đơn vị</th>
+            <th>Giá (VNĐ)</th>
+            <th>Ngày báo giá</th>
+          </tr>
+        </thead>
+        <tbody id="table_bg">
+        </tbody>
+      </table>
+      <div class="pagination">
+        <button id="prevBtn" onclick="prevPage()">Previous</button>
+        <span id="pageNumber">1</span>
+        <button id="nextBtn" onclick="nextPage()">Next</button>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p>Copyright 2024 © Wecare</p>
+  </footer>
+  <script src="https://alcdn.msauth.net/browser/2.15.0/js/msal-browser.min.js"></script>
 
-        // Mảng dữ liệu sản phẩm
-        const products = [
-            { id: 1, title: "Sản phẩm 1", unit: "Hộp", price: "500,000 VND", groupId: 1 },
-            { id: 2, title: "Sản phẩm 2", unit: "Chai", price: "700,000 VND", groupId: 1 },
-            { id: 3, title: "Sản phẩm 3", unit: "Gói", price: "300,000 VND", groupId: 1 },
-            { id: 4, title: "Sản phẩm 4", unit: "Thùng", price: "1,200,000 VND", groupId: 1 },
-            { id: 5, title: "Sản phẩm 5", unit: "Hộp", price: "600,000 VND", groupId: 2 },
-            { id: 6, title: "Sản phẩm 6", unit: "Chai", price: "800,000 VND", groupId: 2 },
-            { id: 7, title: "Sản phẩm 7", unit: "Gói", price: "400,000 VND", groupId: 2 },
-            { id: 8, title: "Sản phẩm 8", unit: "Thùng", price: "1,300,000 VND", groupId: 2 },
-            { id: 9, title: "Sản phẩm 9", unit: "Hộp", price: "500,000 VND", groupId: 3 },
-            { id: 10, title: "Sản phẩm 10", unit: "Chai", price: "900,000 VND", groupId: 3 },
-            { id: 11, title: "Sản phẩm 11", unit: "Gói", price: "1,000,000 VND", groupId: 3 },
-            { id: 12, title: "Sản phẩm 12", unit: "Thùng", price: "700,000 VND", groupId: 3 }
-        ];
+  <script type="text/javascript">
+    const msalConfig = {
+      auth: {
+        clientId: '6fba5a54-1729-4c41-b444-8992ae22c909', // Thay thế bằng Client ID của ứng dụng Azure AD của bạn
+        authority: 'https://login.microsoftonline.com/08dd70ab-ac3b-4a33-acd1-ef3fe1729e61', // Thay thế bằng Tenant ID của bạn
+        redirectUri: window.location.origin
+      }
+    };
 
-        // Hàm để tạo các nhóm sản phẩm
-        function createProductGroups(productGroups, products) {
-            const productContainer = document.getElementById('product-container');
-
-            productGroups.forEach(group => {
-                const productGroup = document.createElement('div');
-                productGroup.className = 'product-group';
-                productGroup.innerHTML = `
-                    <h2>${group.title}</h2>
-                    <img src="${group.image}" alt="${group.title}">
-                    <p class="product-description">${group.description}</p>
-                `;
-                
-                const productTable = document.createElement('table');
-                productTable.className = 'product-table';
-                productTable.innerHTML = `
-                    <tr>
-                        <th>Tên sản phẩm</th>
-                        <th>Đơn vị</th>
-                        <th>Giá</th>
-                    </tr>
-                `;
-                
-                const groupProducts = products.filter(product => product.groupId === group.id);
-                groupProducts.forEach(product => {
-                    const productRow = document.createElement('tr');
-                    productRow.innerHTML = `
-                        <td>${product.title}</td>
-                        <td>${product.unit}</td>
-                        <td>${product.price}</td>
-                    `;
-                    productTable.appendChild(productRow);
-                });
-                
-                productGroup.appendChild(productTable);
-                productContainer.appendChild(productGroup);
-            });
+    function selectAll(checkbox) {
+      var checkboxes = document.querySelectorAll('#groupList input[type="checkbox"]');
+      checkboxes.forEach(function (cb) {
+        if (cb !== checkbox) {
+          cb.checked = checkbox.checked;
         }
+      });
+      filterProducts();
+    }
 
-        // Tải các nhóm sản phẩm khi trang được tải
-        window.onload = function() {
-            createProductGroups(productGroups, products);
+    function filterProducts() {
+      var checkboxes = document.querySelectorAll('#groupList input[type="checkbox"]');
+      var selectedGroups = [];
+      checkboxes.forEach(function (checkbox) {
+        if (checkbox.checked && checkbox.value !== 'All') {
+          selectedGroups.push(checkbox.value);
+        }
+      });
+
+      if (selectedGroups.length === 0) {
+        filteredData = data_bg;
+      } else {
+        filteredData = data_bg.filter(item => selectedGroups.includes(item.crdfd_manhomsanpham));
+      }
+
+      currentPage = 1; // Reset to first page
+      phantrang_baogia(filteredData, currentPage);
+    }
+
+    function searchGroups() {
+      var input, filter, ul, li, i, txtValue;
+      input = document.getElementById('searchInput');
+      filter = input.value.toUpperCase();
+      ul = document.getElementById('groupList');
+      li = ul.getElementsByTagName('li');
+
+      for (i = 0; i < li.length; i++) {
+        txtValue = li[i].textContent || li[i].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          li[i].style.display = "";
+        } else {
+          li[i].style.display = "none";
+        }
+      }
+    }
+    const msalInstance = new msal.PublicClientApplication(msalConfig);
+    //định dạng số
+    function thousands_separators(num) {
+      var num_parts = num.toString().split(",");
+      num_parts[0] = num_parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return num_parts.join(".");
+    }
+    //định dạng ngày 
+    function convertDatetime(dateTime) {
+      var day = new Date(dateTime);
+
+      var dd = day.getDate();
+      var mm = day.getMonth() + 1;
+
+      var yyyy = day.getFullYear();
+      if (dd < 10) {
+        dd = '0' + dd;
+      }
+      if (mm < 10) {
+        mm = '0' + mm;
+      }
+      var dayTime = dd + "/" + mm + "/" + yyyy;
+      return dayTime;
+    }
+    let currentPage = 1;
+    const sodong_trang = 20;
+    let data_bg = []; // Dữ liệu sản phẩm toàn bộ
+    let filteredData = []; // Dữ liệu sản phẩm đã lọc
+
+    function phantrang_baogia(data, page) {
+      const start = (page - 1) * sodong_trang;
+      const end = start + sodong_trang;
+      const paginatedData = data.slice(start, end);
+
+      let tableContent = '';
+      paginatedData.forEach(item => {
+        tableContent += `<tr data-group="${item.crdfd_manhomsanpham}">
+            <td>${item.crdfd_nhomoituongtext}</td>
+            <td>${item.crdfd_sanphamtext}</td>
+            <td style="text-align: center">${item.crdfd_onvichuan}</td>
+            <td style="text-align: center">${thousands_separators(item.crdfd_gia)} </td>
+            <td style="text-align: center">${convertDatetime(item.crdfd_ngaybaogia)}</td>
+        </tr>`;
+      });
+
+      document.getElementById('table_bg').innerHTML = tableContent;
+      document.getElementById('pageNumber').textContent = page;
+    }
+
+    function nextPage() {
+      const tongdong = filteredData.length;
+      const tong_sotrang = Math.ceil(tongdong / sodong_trang);
+      if (currentPage < tong_sotrang) {
+        currentPage++;
+        phantrang_baogia(filteredData, currentPage);
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        phantrang_baogia(filteredData, currentPage);
+      }
+    }
+    //get data từ dataverse
+    async function getData() {
+      try {
+        // Đăng nhập người dùng và lấy đối tượng tài khoản
+        const loginResponse = await msalInstance.loginPopup({
+          scopes: ["https://wecare-ii.crm5.dynamics.com/.default"] // Thay thế bằng phạm vi API Dynamics 365 của bạn
+        });
+        const account = msalInstance.getAllAccounts()[0];
+
+        // Lấy token truy cập cho API Dynamics 365
+        const tokenResponse = await msalInstance.acquireTokenSilent({
+          account: account,
+          scopes: ["https://wecare-ii.crm5.dynamics.com/.default"] // Thay thế bằng phạm vi API Dynamics 365 của bạn
+        });
+
+        const accessToken = tokenResponse.accessToken; // Lấy token truy cập
+        const apiUrl = 'https://wecare-ii.crm5.dynamics.com/api/data/v9.2/crdfd_productgroups?$select=crdfd_manhomsp,crdfd_productname&$filter=statecode eq 0'; // Thay thế bằng URL API của Dynamics 365
+
+        const headers = new Headers({
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "OData-MaxVersion": "4.0",
+          "OData-Version": "4.0"
+        });
+
+        const requestOptions = {
+          method: 'GET',
+          headers: headers
         };
-    </script>
+
+        const response_nhsp = await fetch(apiUrl, requestOptions); // Gửi yêu cầu đến API của Dynamics 365
+        if (!response_nhsp.ok) {
+          throw new Error(`HTTP error! status: ${response_nhsp.status}`);
+        }
+        const data_nhsp = await response_nhsp.json(); // Lấy dữ liệu phản hồi
+        var td = "";
+        for (let i = 0; i < data_nhsp.value.length; i++) {
+          td += '<li><input type="checkbox" value=' + data_nhsp.value[i].crdfd_manhomsp + ' onclick="filterProducts()"><label>' + data_nhsp.value[i].crdfd_productname + '</label></li>';
+        }
+        document.getElementById("filter_nhsp").innerHTML = td;
+
+        // Báo giá
+        const response_bg = await fetch('https://wecare-ii.crm5.dynamics.com/api/data/v9.2/crdfd_baogiachitiets?$select=crdfd_gia,crdfd_manhomsanpham,crdfd_ngaybaogia,crdfd_nhomoituongtext,crdfd_sanphamtext,crdfd_onvichuan&$filter=statecode eq 0', requestOptions);
+        if (!response_bg.ok) {
+            throw new Error(`HTTP error! status: ${response_bg.status}`);
+        }
+        const data = await response_bg.json();
+        console.log(data);
+        data_bg = data.value; // Lưu dữ liệu sản phẩm vào biến toàn cục
+        filteredData = data_bg; // Khởi tạo dữ liệu đã lọc với toàn bộ dữ liệu
+        phantrang_baogia(filteredData, currentPage); // Hiển thị trang đầu tiên
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+      }
+    }
+  </script>
 </body>
+
 </html>
